@@ -18,8 +18,12 @@ import kotlin.reflect.KProperty
 )
 @Immutable
 data class Password(
-    @PrimaryKey
-    @ColumnInfo(name = "id") val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id") val id: Int = 0,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "login") val login: String,
+    @ColumnInfo(name = "password") val password: String,
+    @ColumnInfo(name = "notes") val notes: String,
 )
 
 @Serializable
@@ -34,5 +38,18 @@ data class PasswordInfo(
     operator fun getValue(nothing: Nothing?, property: KProperty<*>): Password =
         Password(
             id = id,
+            name = name,
+            login = login,
+            password = password,
+            notes = notes,
         )
     }
+
+fun Password.toInfo(): PasswordInfo =
+    PasswordInfo(
+        id = id,
+        name = name,
+        login = login,
+        password = password,
+        notes = notes,
+    )
