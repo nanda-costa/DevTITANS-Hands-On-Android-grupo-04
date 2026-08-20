@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
@@ -73,6 +75,13 @@ fun Login_screen(
         mutableStateOf("")
     }
 
+    // Preencher login se o Autofill estiver ativo
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (preferencesViewModel.preencher) {
+            login = preferencesViewModel.login
+        }
+    }
+
     var showMenu by remember {
         mutableStateOf(false)
     }
@@ -118,7 +127,8 @@ fun Login_screen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Lime Green Banner
