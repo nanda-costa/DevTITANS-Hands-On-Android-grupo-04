@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plaintext.data.model.PasswordInfo
 import com.example.plaintext.ui.screens.Screen
-import com.example.plaintext.ui.screens.login.TopBarComponent
 
 data class EditListState(
     val nomeState: MutableState<String>,
@@ -51,7 +50,71 @@ fun EditList(
     navigateBack: () -> Unit,
     savePassword: (password: PasswordInfo) -> Unit
 ) {
+    val password = args.password
+    var name by rememberSaveable { mutableStateOf(password.name) }
+    var login by rememberSaveable { mutableStateOf(password.login) }
+    var senha by rememberSaveable { mutableStateOf(password.password) }
+    var notes by rememberSaveable { mutableStateOf(password.notes) }
 
+    Scaffold(
+        topBar = {
+            Text(
+                text = if (isPasswordEmpty(password)) "Nova Senha" else "Editar Senha",
+                modifier = Modifier.padding(16.dp),
+                fontSize = 24.sp
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nome") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = login,
+                onValueChange = { login = it },
+                label = { Text("Usuário") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = senha,
+                onValueChange = { senha = it },
+                label = { Text("Senha") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("Notas") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(onClick = navigateBack) {
+                    Text("Cancelar")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = {
+                    savePassword(PasswordInfo(password.id, name, login, senha, notes))
+                    navigateBack()
+                }) {
+                    Text("Salvar")
+                }
+            }
+        }
+    }
 }
 
 

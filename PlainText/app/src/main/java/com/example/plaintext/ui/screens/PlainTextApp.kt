@@ -16,8 +16,7 @@ import com.example.plaintext.ui.screens.hello.Hello_screen
 import com.example.plaintext.ui.screens.list.AddButton
 import com.example.plaintext.ui.screens.list.ListView
 import com.example.plaintext.ui.screens.login.Login_screen
-import com.example.plaintext.ui.screens.login.TopBarComponent
-import com.example.plaintext.ui.screens.preferences.SettingsScreen
+import com.example.plaintext.ui.screens.preferences.Preferences
 import com.example.plaintext.ui.viewmodel.ListViewModel
 import com.example.plaintext.ui.viewmodel.PreferencesViewModel
 import com.example.plaintext.utils.parcelableType
@@ -27,9 +26,12 @@ import kotlin.reflect.typeOf
 fun PlainTextApp(
     appState: JetcasterAppState = rememberJetcasterAppState()
 ) {
+    val preferencesViewModel: PreferencesViewModel = hiltViewModel()
+    val listViewModel: ListViewModel = hiltViewModel()
+
     NavHost(
         navController = appState.navController,
-        startDestination = Screen.Hello("DevTITANS"),
+        startDestination = Screen.Login,
     )
     {
         composable<Screen.Hello>{
@@ -38,8 +40,25 @@ fun PlainTextApp(
         }
         composable<Screen.Login>{
             Login_screen(
-                navigateToSettings = {},
-                navigateToList = {}
+                navigateToSettings = { appState.navController.navigate(Screen.Preferences) },
+                navigateToList = { appState.navController.navigate(Screen.List) },
+                preferencesViewModel = preferencesViewModel
+            )
+        }
+        composable<Screen.Preferences>{
+            Preferences(
+                preferencesViewModel = preferencesViewModel,
+                onBack = { appState.navController.popBackStack() }
+            )
+        }
+        composable<Screen.List>{
+            ListView(
+                onLogout = { appState.navController.navigate(Screen.Login) },
+                onNavigateToEdit = { passwordInfo ->
+                    appState.navController.navigate(Screen.EditList(passwordInfo))
+                },
+                viewModel = listViewModel,
+                preferencesViewModel = preferencesViewModel
             )
         }
         composable<Screen.EditList>(
@@ -48,8 +67,8 @@ fun PlainTextApp(
             val args = it.toRoute<Screen.EditList>()
             EditList(
                 args,
-                navigateBack = {},
-                savePassword = { password -> Unit }
+                navigateBack = { appState.navController.popBackStack() },
+                savePassword = { password -> listViewModel.savePassword(password) }
             )
         }
     }

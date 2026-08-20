@@ -25,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,19 +36,62 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.plaintext.R
-import com.example.plaintext.ui.screens.login.TopBarComponent
+import com.example.plaintext.ui.theme.DarkGray
 import com.example.plaintext.ui.viewmodel.ListViewModel
 import com.example.plaintext.ui.viewmodel.ListViewState
+import com.example.plaintext.ui.viewmodel.PreferencesViewModel
 import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.plaintext.data.model.PasswordInfo
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListView(
-) {}
+    onLogout: () -> Unit,
+    onNavigateToEdit: (PasswordInfo) -> Unit,
+    viewModel: ListViewModel = hiltViewModel(),
+    preferencesViewModel: PreferencesViewModel = hiltViewModel()
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("PlainText", color = Color.White) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = DarkGray
+                )
+            )
+        },
+        floatingActionButton = {
+            AddButton(onClick = {
+                onNavigateToEdit(PasswordInfo(0, "", "", "", ""))
+            })
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            if (viewModel.listViewState.passwordList.isEmpty()) {
+                Text(
+                    text = "Olá ${preferencesViewModel.login}!",
+                    fontSize = 20.sp
+                )
+            } else {
+                ListItemContent(
+                    modifier = Modifier.fillMaxSize(),
+                    listState = viewModel.listViewState,
+                    navigateToEdit = onNavigateToEdit
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun AddButton(onClick: () -> Unit) {
