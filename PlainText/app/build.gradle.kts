@@ -52,7 +52,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.foundation.layout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -64,11 +65,6 @@ dependencies {
     //navigation
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
-
-    //room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     // Dependency injection
     implementation(libs.androidx.hilt.navigation.compose)

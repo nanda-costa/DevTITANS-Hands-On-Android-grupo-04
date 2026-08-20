@@ -1,15 +1,5 @@
 package com.example.plaintext.data
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import com.example.plaintext.data.dao.PasswordDao
-import com.example.plaintext.data.model.Password
-
-@Database(
-    entities = [Password::class],
-    version = 1,
-    exportSchema = false
-)
-abstract class PlainTextDatabase : RoomDatabase() {
-    abstract fun passwordDao(): PasswordDao
+// Room database removed in favor of SQLiteOpenHelper implementation
+class PlainTextDatabase {
 }
