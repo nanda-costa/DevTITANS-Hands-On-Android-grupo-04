@@ -3,8 +3,9 @@ package com.example.plaintext.data.repository
 import com.example.plaintext.data.dao.PasswordDao
 import com.example.plaintext.data.model.Password
 import com.example.plaintext.data.model.PasswordInfo
-import com.example.plaintext.data.model.toPasswordInfo
+import com.example.plaintext.data.model.toInfo
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 interface PasswordDBStore {
     fun getList(): Flow<List<Password>>
@@ -35,7 +36,7 @@ class LocalPasswordDBStore(
     }
 
     override suspend fun save(passwordInfo: PasswordInfo) {
-        val password = passwordInfo.toPassword()
+        val password by passwordInfo
         if (password.id == 0) {
             passwordDao.insert(password)
         } else {
@@ -47,3 +48,5 @@ class LocalPasswordDBStore(
         return passwordDao.isEmpty()
     }
 }
+
+fun Flow<List<Password>>.toInfoList(): Flow<List<PasswordInfo>> = map { list -> list.map { it.toInfo() } }

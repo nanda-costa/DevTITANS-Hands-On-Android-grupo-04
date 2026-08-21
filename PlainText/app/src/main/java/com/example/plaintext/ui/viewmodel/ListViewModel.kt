@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.plaintext.data.dao.PasswordDao
 import com.example.plaintext.data.model.Password
 import com.example.plaintext.data.model.PasswordInfo
-import com.example.plaintext.data.model.toPasswordInfo
+import com.example.plaintext.data.model.toInfo
 import com.example.plaintext.data.repository.PasswordDBStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
@@ -37,7 +37,7 @@ open class ListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             passwordDBStore.getList()
-                .map { list -> list.map { it.toPasswordInfo() } }
+                .map { list -> list.map { it.toInfo() } }
                 .collect {
                     listViewState = listViewState.copy(
                         passwordList = it,

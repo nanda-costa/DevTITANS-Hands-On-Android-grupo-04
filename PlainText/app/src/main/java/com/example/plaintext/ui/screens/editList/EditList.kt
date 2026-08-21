@@ -63,7 +63,7 @@ fun EditList(
     var name by rememberSaveable { mutableStateOf(password.name) }
     var login by rememberSaveable { mutableStateOf(password.login) }
     var senha by rememberSaveable { mutableStateOf(password.password) }
-    var notes by rememberSaveable { mutableStateOf(password.notes) }
+    var notes by rememberSaveable { mutableStateOf(password.notes ?: "") }
 
     Scaffold(
         topBar = {

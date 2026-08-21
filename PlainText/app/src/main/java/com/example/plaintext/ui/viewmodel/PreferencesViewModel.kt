@@ -12,33 +12,39 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
+data class PreferencesViewState(
+    val login: String = "",
+    val password: String = "",
+    val preencher: Boolean = false
+)
+
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
     private val preferencesDao: PreferencesDao,
     private val passwordDBStore: PasswordDBStore
 ) : ViewModel() {
 
-    var login by mutableStateOf(preferencesDao.getLogin())
-        private set
-
-    var password by mutableStateOf(preferencesDao.getPassword())
-        private set
-
-    var preencher by mutableStateOf(preferencesDao.getAutofill())
+    var preferencesViewState by mutableStateOf(
+        PreferencesViewState(
+            login = preferencesDao.getLogin(),
+            password = preferencesDao.getPassword(),
+            preencher = preferencesDao.getAutofill()
+        )
+    )
         private set
 
     fun updateLogin(value: String) {
-        login = value
+        preferencesViewState = preferencesViewState.copy(login = value)
         preferencesDao.updateLogin(value)
     }
 
     fun updatePassword(value: String) {
-        password = value
+        preferencesViewState = preferencesViewState.copy(password = value)
         preferencesDao.updatePassword(value)
     }
 
     fun updatePreencher(value: Boolean) {
-        preencher = value
+        preferencesViewState = preferencesViewState.copy(preencher = value)
         preferencesDao.updateAutofill(value)
     }
 

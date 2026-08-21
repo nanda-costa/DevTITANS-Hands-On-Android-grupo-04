@@ -113,7 +113,7 @@ fun Preferences(
                     Text(text = "Preencher login na tela inicial", fontSize = 12.sp, color = Color.Gray)
                 }
                 Checkbox(
-                    checked = preferencesViewModel.preencher,
+                    checked = preferencesViewModel.preferencesViewState.preencher,
                     onCheckedChange = { preferencesViewModel.updatePreencher(it) }
                 )
             }
@@ -123,7 +123,7 @@ fun Preferences(
     }
 
     if (showLoginDialog) {
-        var tempLogin by remember { mutableStateOf(preferencesViewModel.login) }
+        var tempLogin by remember { mutableStateOf(preferencesViewModel.preferencesViewState.login) }
         AlertDialog(
             onDismissRequest = { showLoginDialog = false },
             title = { Text("Setar Login") },
@@ -150,7 +150,7 @@ fun Preferences(
     }
 
     if (showPasswordDialog) {
-        var tempPassword by remember { mutableStateOf(preferencesViewModel.password) }
+        var tempPassword by remember { mutableStateOf(preferencesViewModel.preferencesViewState.password) }
         AlertDialog(
             onDismissRequest = { showPasswordDialog = false },
             title = { Text("Setar Senha") },

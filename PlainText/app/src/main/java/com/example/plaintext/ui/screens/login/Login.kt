@@ -75,10 +75,9 @@ fun Login_screen(
         mutableStateOf("")
     }
 
-    // Preencher login se o Autofill estiver ativo
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (preferencesViewModel.preencher) {
-            login = preferencesViewModel.login
+        if (preferencesViewModel.preferencesViewState.preencher) {
+            login = preferencesViewModel.preferencesViewState.login
         }
     }
 
@@ -131,7 +130,6 @@ fun Login_screen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Lime Green Banner
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -140,7 +138,6 @@ fun Login_screen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                // Column 1: Icon (Key on Paper)
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -152,7 +149,6 @@ fun Login_screen(
                     )
                 }
                 
-                // Column 2: Multi-line Text
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -200,7 +196,6 @@ fun Login_screen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password Field
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Senha:", modifier = Modifier.width(60.dp))
                     TextField(
@@ -218,10 +213,9 @@ fun Login_screen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Checkbox
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
-                        checked = preferencesViewModel.preencher,
+                        checked = preferencesViewModel.preferencesViewState.preencher,
                         onCheckedChange = { preferencesViewModel.updatePreencher(it) }
                     )
                     Text(text = "Salvar informação de login", fontSize = 14.sp)
@@ -229,7 +223,6 @@ fun Login_screen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Entrar Button
                 Button(
                     onClick = {
                         val credentialsOK = preferencesViewModel.checkCredentials(
