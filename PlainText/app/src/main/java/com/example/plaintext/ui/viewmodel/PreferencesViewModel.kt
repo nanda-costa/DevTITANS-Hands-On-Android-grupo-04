@@ -3,41 +3,65 @@ package com.example.plaintext.ui.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.lifecycle.viewModelScope
+import com.example.plaintext.data.dao.PreferencesDao
+import com.example.plaintext.data.repository.PasswordDBStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-
-data class PreferencesState(
-    var login: String,
-    var password: String,
-    var preencher: Boolean
-)
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    handle: SavedStateHandle,
+    private val preferencesDao: PreferencesDao,
+    private val passwordDBStore: PasswordDBStore
 ) : ViewModel() {
-    var preferencesState by mutableStateOf(PreferencesState(login = "devtitans", password = "123", preencher = true))
+
+    var login by mutableStateOf(preferencesDao.getLogin())
         private set
 
-    fun updateLogin(login: String) {
+    var password by mutableStateOf(preferencesDao.getPassword())
+        private set
 
+    var preencher by mutableStateOf(preferencesDao.getAutofill())
+        private set
+
+    fun updateLogin(value: String) {
+        login = value
+        preferencesDao.updateLogin(value)
     }
 
-    fun updatePassword(password: String) {
-
+    fun updatePassword(value: String) {
+        password = value
+        preferencesDao.updatePassword(value)
     }
 
-    fun updatePreencher(preencher: Boolean) {
-
+    fun updatePreencher(value: Boolean) {
+        preencher = value
+        preferencesDao.updateAutofill(value)
     }
 
-    fun checkCredentials(login: String, password: String): Boolean{
-        return login == preferencesState.login && password == preferencesState.password
+    fun checkCredentials(
+        enteredLogin: String,
+        enteredPassword: String
+    ): Boolean {
+        // 1. Verificar contra a Conta Mestre (Configurações)
+        val savedLogin = preferencesDao.getLogin()
+        val savedPassword = preferencesDao.getPassword()
+        
+        if (enteredLogin == savedLogin && enteredPassword == savedPassword && savedLogin.isNotEmpty()) {
+            return true
+        }
+
+        // 2. Verificar contra as senhas armazenadas na lista
+        return try {
+            runBlocking {
+                val list = passwordDBStore.getList().first()
+                list.any { it.login == enteredLogin && it.password == enteredPassword }
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 }
