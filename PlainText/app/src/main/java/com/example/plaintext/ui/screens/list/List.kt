@@ -76,7 +76,7 @@ fun ListView(
             if (viewModel.listViewState.passwordList.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Olá ${preferencesViewModel.login}!",
+                        text = "Olá ${preferencesViewModel.preferencesViewState.login}!",
                         fontSize = 20.sp
                     )
                 }
