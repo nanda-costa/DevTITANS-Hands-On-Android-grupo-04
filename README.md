@@ -1,45 +1,87 @@
-# DevTITANS Hands-On Android — Equipe 04
+# PlainText — Gerenciador de Senhas
 
-Implementação do **PlainText App** (gerenciador de senhas em Kotlin + Jetpack Compose) para o Hands-On de Android.
+Aplicativo Android de gerenciamento de senhas, desenvolvido em **Kotlin** com **Jetpack Compose**, para o Hands-On de Android da disciplina DevTITANS (Equipe 04).
 
-## Divisão de tarefas
+Permite cadastrar, listar, editar e proteger senhas por trás de uma conta mestre, com persistência local via **Room** e injeção de dependências via **Hilt**.
 
-O app já vem com o esqueleto pronto (Compose, Room, Hilt, Navigation); o trabalho de cada pessoa é completar os pontos em aberto (TODOs, funções vazias e telas não implementadas).
+## Funcionalidades
 
-### Fernanda — Modelo de dados + Room + DI
-Branch: `feature/database-room-di`
+- **Login com conta mestre**: autenticação contra as credenciais configuradas nas Preferências.
+- **Autofill de login**: opção de salvar e preencher automaticamente o campo de login.
+- **Lista de senhas**: visualização de todas as senhas cadastradas, persistidas localmente.
+- **Adicionar senha**: formulário para cadastrar nome, usuário, senha e notas.
+- **Editar senha**: edição de um registro existente a partir da lista.
+- **Preferências**: configuração da conta mestre (login/senha) e da opção de autofill.
 
-- `data/model/Password.kt`: completar a entity `Password` (faltam colunas `name`, `login`, `password`, `notes`) e o operator `getValue` de `PasswordInfo`.
-- `data/dao/PasswordDao.kt`: adicionar `@Query` para listar tudo (`Flow<List<Password>>`), buscar por id, e checar se está vazio.
-- `data/repository/PasswordStore.kt`: implementar os 6 métodos TODO (`getList`, `add`, `update`, `get`, `save`, `isEmpty`), convertendo `Password` <-> `PasswordInfo`.
-- `data/di/DataDiModule.kt`: prover `PlainTextDatabase` via `Room.databaseBuilder` e `PasswordDao`; remover o `dbSimulator`/`hello.ListViewModel`.
+## Tech Stack
 
-### Luiz — Navegação + Tela de Lista
-Branch: `feature/navigation-list`
+| Camada | Tecnologia |
+| --- | --- |
+| UI | Jetpack Compose + Material 3 |
+| Navegação | Navigation Compose (rotas tipadas com `@Serializable`) |
+| Persistência | Room |
+| Injeção de dependência | Hilt |
+| Assincronismo | Kotlin Coroutines + Flow |
+| Linguagem | Kotlin |
 
-- `ui/screens/PlainTextAppState.kt` + `ui/screens/PlainTextApp.kt`: registrar as rotas que faltam no `NavHost` (`Screen.List`, `Screen.Preferences`, `Screen.sensors`) e criar as funções de navegação (`navigateToList`, `navigateToEdit`, `navigateBack`, `navigateToPreferences`).
-- `ui/screens/list/List.kt`: implementar `ListView()` (Scaffold + `TopBarComponent` + `AddButton` + `ListItemContent`).
-- `ui/viewmodel/ListViewModel.kt`: injetar `PasswordDBStore`, coletar `getList()` no `init`, implementar `savePassword`.
+## Arquitetura
 
-### João Victor — Tela de Edição + Splash/Hello
-Branch: `feature/edit-hello`
+O projeto segue o padrão **MVVM**:
 
-- `ui/screens/editList/EditList.kt`: implementar o composable `EditList()` (formulário com `EditInput` para nome/usuário/senha/notas, botão salvar/voltar).
-- `ui/screens/hello/Hello.kt`: está com código de exemplo bagunçado (um `ListViewModel`/`dbSimulator` fake duplicando o real). Precisa decidir o papel real dessa tela (splash → Login, provavelmente) e limpar a duplicação.
-- Ligar `navigateBack` / `savePassword` dessas telas ao `PlainTextAppState` e ao `ListViewModel`.
+```
+ui/screens/ (View)        ui/viewmodel/ (ViewModel)       data/ (Model)
+   Composables      <--->     @HiltViewModel         <--->   Room DAO
+   (Login, List,              expõe um ViewState             + Repository
+   Preferences,               único por tela                 (converte
+   EditList)                  (mutableStateOf)                Entity <-> Info)
+```
 
-### Antonio — Login + Preferências
-Branch: `feature/login-preferences`
+- **Model** (`data/model`, `data/dao`, `data/repository`, `data/di`): entidades Room (`Password`), DAOs, repositório (`PasswordDBStore`) que converte entre a entidade de banco e o modelo de UI (`PasswordInfo`), e o módulo Hilt que provê o banco.
+- **ViewModel** (`ui/viewmodel`): um `@HiltViewModel` por tela, cada um expondo um **único ViewState** (ex.: `ListViewState`, `PreferencesViewState`) atualizado via `.copy()` — evita múltiplos `mutableStateOf` soltos.
+- **View** (`ui/screens`): Composables organizados por tela (`login`, `list`, `editList`, `preferences`), consumindo o ViewModel via `hiltViewModel()`.
+- **Navegação**: rotas definidas como uma sealed class `Screen` (`PlainTextAppState.kt`), registradas no `NavHost` de `PlainTextApp.kt`.
 
-- `ui/screens/login/Login.kt`: implementar `Login_screen()` (inputs de login/senha, usa `checkCredentials` do `PreferencesViewModel`, navega para Lista ou mostra erro).
-- `ui/viewmodel/PreferencesViewModel.kt`: implementar `updateLogin`, `updatePassword`, `updatePreencher`.
-- `ui/screens/preferences/Preferences.kt`: ligar `SettingsContent` ao estado real do `PreferencesViewModel` (hoje os campos estão hardcoded/vazios).
-- Dar uma olhada em `SensorsViewModel.kt`.
+## Estrutura do projeto
 
-## Como trabalhar em paralelo
+```
+PlainText/app/src/main/java/com/example/plaintext/
+├── data/
+│   ├── dao/            # PasswordDao, PreferencesDao
+│   ├── di/              # DataDiModule (Room + Hilt)
+│   ├── model/           # Entities (Password) e modelos de UI (PasswordInfo)
+│   └── repository/      # PasswordDBStore
+├── ui/
+│   ├── screens/          # Composables: login, list, editList, preferences, hello
+│   ├── viewmodel/        # ListViewModel, PreferencesViewModel, SensorsViewModel
+│   └── theme/            # Cores, tipografia, tema Compose
+└── utils/                # Helpers (ex.: NavType para argumentos parcelable)
+```
 
-O bloco da Fernanda (Room + DI) é pré-requisito para os dados reais, mas **Luiz e Antonio podem começar já** usando dados mockados (listas fixas, `PasswordInfo` de exemplo, `@Preview` com valores fake) enquanto o banco não fica pronto. Depois que `feature/database-room-di` for mergeada, cada um troca o mock pela integração real com `PasswordDBStore` / `ListViewModel`.
+## Como rodar o projeto
+
+**Pré-requisitos**: Android Studio, SDK do Android instalado, emulador ou dispositivo físico configurado.
+
+1. Clone o repositório e abra a pasta `PlainText/` no Android Studio.
+2. Crie o arquivo `PlainText/local.properties` (não é versionado) apontando para o seu SDK:
+   ```
+   sdk.dir=/caminho/para/seu/Android/Sdk
+   ```
+3. Certifique-se de que o **Gradle JDK** da IDE é compatível com o Gradle 8.9 (Java 8–22). Em `File > Settings > Build, Execution, Deployment > Build Tools > Gradle`, selecione um JDK 17 ou 21 caso o padrão da IDE seja incompatível.
+4. Rode o projeto pelo botão **Run** do Android Studio, ou via linha de comando:
+   ```bash
+   cd PlainText
+   ./gradlew :app:installDebug
+   ```
+
+## Equipe
+
+| Integrante | Contribuição principal |
+| --- | --- |
+| Fernanda Costa | Modelo de dados, Room, Hilt (DI), padronização dos ViewModels |
+| Antonio | Login, Preferências, tela de Lista |
+| João Victor | Tela de Edição de senha (EditList) e navegação |
+| Luiz | Padronização da navegação e documentação (wiki) |
 
 ## Convenção de branches
 
-`feature/<escopo>` a partir de `develop`. PR de volta para `develop`; `master` só recebe merge da versão final.
+`feature/<escopo>` a partir de `develop`. PR de volta para `develop`; `master` recebe apenas a versão final.
