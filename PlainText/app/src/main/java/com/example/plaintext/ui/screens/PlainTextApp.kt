@@ -53,9 +53,9 @@ fun PlainTextApp(
         }
         composable<Screen.List>{
             ListView(
-                onLogout = { appState.navController.navigate(Screen.Login) },
+                onLogout = { appState.navigateToLogin() },
                 onNavigateToEdit = { passwordInfo ->
-                    appState.navController.navigate(Screen.EditList(passwordInfo))
+                    appState.navigateToEditList(passwordInfo)
                 },
                 viewModel = listViewModel,
                 preferencesViewModel = preferencesViewModel
@@ -67,7 +67,7 @@ fun PlainTextApp(
             val args = it.toRoute<Screen.EditList>()
             EditList(
                 args,
-                navigateBack = { appState.navController.popBackStack() },
+                navigateBack = { appState.navigateBack() },
                 savePassword = { password -> listViewModel.savePassword(password) }
             )
         }
