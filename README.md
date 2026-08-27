@@ -4,6 +4,8 @@ Aplicativo Android de gerenciamento de senhas, desenvolvido em **Kotlin** com **
 
 Permite cadastrar, listar, editar e proteger senhas por trás de uma conta mestre, com persistência local via **Room** e injeção de dependências via **Hilt**.
 
+📖 Documentação completa (arquitetura, tech stack, estrutura do projeto e divisão de tarefas) na [Wiki do repositório](https://github.com/nanda-costa/DevTITANS-Hands-On-Android-grupo-04/wiki).
+
 ## Funcionalidades
 
 - **Login com conta mestre**: autenticação contra as credenciais configuradas nas Preferências.
@@ -12,50 +14,6 @@ Permite cadastrar, listar, editar e proteger senhas por trás de uma conta mestr
 - **Adicionar senha**: formulário para cadastrar nome, usuário, senha e notas.
 - **Editar senha**: edição de um registro existente a partir da lista.
 - **Preferências**: configuração da conta mestre (login/senha) e da opção de autofill.
-
-## Tech Stack
-
-| Camada | Tecnologia |
-| --- | --- |
-| UI | Jetpack Compose + Material 3 |
-| Navegação | Navigation Compose (rotas tipadas com `@Serializable`) |
-| Persistência | Room |
-| Injeção de dependência | Hilt |
-| Assincronismo | Kotlin Coroutines + Flow |
-| Linguagem | Kotlin |
-
-## Arquitetura
-
-O projeto segue o padrão **MVVM**:
-
-```
-ui/screens/ (View)        ui/viewmodel/ (ViewModel)       data/ (Model)
-   Composables      <--->     @HiltViewModel         <--->   Room DAO
-   (Login, List,              expõe um ViewState             + Repository
-   Preferences,               único por tela                 (converte
-   EditList)                  (mutableStateOf)                Entity <-> Info)
-```
-
-- **Model** (`data/model`, `data/dao`, `data/repository`, `data/di`): entidades Room (`Password`), DAOs, repositório (`PasswordDBStore`) que converte entre a entidade de banco e o modelo de UI (`PasswordInfo`), e o módulo Hilt que provê o banco.
-- **ViewModel** (`ui/viewmodel`): um `@HiltViewModel` por tela, cada um expondo um **único ViewState** (ex.: `ListViewState`, `PreferencesViewState`) atualizado via `.copy()` — evita múltiplos `mutableStateOf` soltos.
-- **View** (`ui/screens`): Composables organizados por tela (`login`, `list`, `editList`, `preferences`), consumindo o ViewModel via `hiltViewModel()`.
-- **Navegação**: rotas definidas como uma sealed class `Screen` (`PlainTextAppState.kt`), registradas no `NavHost` de `PlainTextApp.kt`.
-
-## Estrutura do projeto
-
-```
-PlainText/app/src/main/java/com/example/plaintext/
-├── data/
-│   ├── dao/            # PasswordDao, PreferencesDao
-│   ├── di/              # DataDiModule (Room + Hilt)
-│   ├── model/           # Entities (Password) e modelos de UI (PasswordInfo)
-│   └── repository/      # PasswordDBStore
-├── ui/
-│   ├── screens/          # Composables: login, list, editList, preferences, hello
-│   ├── viewmodel/        # ListViewModel, PreferencesViewModel, SensorsViewModel
-│   └── theme/            # Cores, tipografia, tema Compose
-└── utils/                # Helpers (ex.: NavType para argumentos parcelable)
-```
 
 ## Como rodar o projeto
 
